@@ -11,7 +11,7 @@ mapboxgl.accessToken = 'pk.eyJ1IjoiY2hhcmxvdHRlYmtnIiwiYSI6ImNscjlvYzM1OTA1MW8ya
 // Initialize map and edit to your preference
 const map = new mapboxgl.Map({
     container: 'map', // container id in HTML
-    style: 'mapbox://styles/charlottebkg/cltq7xpkz03h901p0e3fy61l9',  // ****ADD MAP STYLE HERE *****
+    style: 'mapbox://styles/mapbox/streets-v12',  // ****ADD MAP STYLE HERE *****
     center: [-79.39, 43.65],  // starting point, longitude/latitude
     zoom: 12 // starting zoom level
 });
@@ -24,6 +24,13 @@ Step 2: VIEW GEOJSON POINT DATA ON MAP
 //HINT: Create an empty variable
 //      Use the fetch method to access the GeoJSON from your online repository
 //      Convert the response to JSON format and then store the response in your new variable
+let collisgeojson;
+fetch('https://raw.githubusercontent.com/charlbkg/ggr472-lab4/main/data/pedcyc_collision_06-21.geojson')
+    .then(response => response.json())
+    .then(response => {
+        console.log(response); //Check response in console
+        collisgeojson = response; // Store geojson as variable using URL from fetch response
+    });
 
 
 
@@ -34,9 +41,35 @@ Step 2: VIEW GEOJSON POINT DATA ON MAP
 //      First create a bounding box around the collision point data then store as a feature collection variable
 //      Access and store the bounding box coordinates as an array variable
 //      Use bounding box coordinates as argument in the turf hexgrid function
-
-
-
+map.on('load'), () => {
+ //   let bboxcoords = turf.bbox(collisgeojson)
+ //   let hexgeojson = turf.hexGrid(bboxcoords, 0.5, { units: 'kilometers' })
+    map.addsource('collisgeojson', {
+        type: 'geojson',
+        data: collisgeojson
+    });
+    map.addlayer({
+        'id': 'collis',
+        'type': 'circle',
+        'source': 'collisgeojson',
+        'paint': {
+            'circle-radius': 5,
+            'circle-color': 'blue'
+        }
+    })
+   // map.addsource('hexgeojson', {
+   //     type: 'geojson',
+   //     data: hexgeojson
+  //  });
+   // map.addlayer({
+   //     'id': 'collishex',
+   //     'type': 'fill',
+   //     'source': 'hexgeojson',
+  //      'paint': {
+  //          "fill-color": "#00ffff"
+  //      }
+ //   })
+};
 /*--------------------------------------------------------------------
 Step 4: AGGREGATE COLLISIONS BY HEXGRID
 --------------------------------------------------------------------*/
